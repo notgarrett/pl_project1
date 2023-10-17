@@ -29,15 +29,19 @@ class Node<T>(value: Comparable<T>) {
 
 }
 
-class Tree<T>(root: Node<T>) {
+
+open class Tree<T>(root: Node<T>) {
     private var root: Node<T>
-    var height: Int = 0
 
     init {
         this.root = root
     }
 
-    fun add(value: Comparable<T>, root: Node<T> = this.root) {
+    open fun getRoot() : Node<T> {
+        return this.root
+    }
+
+    open fun add(value: Comparable<T>, root: Node<T> = this.root) {
         val comparison = compareValues(value, root.getValue())
 
         if (comparison > 0) {
@@ -53,7 +57,12 @@ class Tree<T>(root: Node<T>) {
 
     }
 
-    fun add(node: Node<T>, root: Node<T> = this.root) {
+    fun add(node: Node<T>, root: Node<T>? = this.root) {
+        if (root == null) {
+            this.root = node
+            return
+        }
+
         val comparison = compareValues(node.getValue(), root.getValue())
 
         if (comparison > 0) {
@@ -68,25 +77,54 @@ class Tree<T>(root: Node<T>) {
         return
     }
 
-    fun dfSearch(value: Comparable<T>, root: Node<T>? = this.root) : Node<T> {
-
+    fun dfSearch(value: Comparable<T>, root: Node<T>? = this.root/*, visited: MutableList<Node<T>?> = mutableListOf()*/) : Node<T>? {
+        root ?: return null;
+//        if (visited.contains(root)) return null
+//        visited.add(root)
+        if (compareValues(value, root.getValue()) == 0) return root
+        val left = dfSearch(value, root.getLeft())
+        if (left != null) return left
+        val right = dfSearch(value, root.getRight())
+        if (right != null) return right
+        return null
     }
 
-    fun bfSearch(value: Comparable<T>, root: Node<T>? = this.root) : Node<T> {
-
-    }
-
-    fun delete(value: Comparable<T>, root: Node<T>? = this.root) {
-
-    }
-
-    fun addSubtree(root: Node<T>?) {
+    fun bfTraversal(root: Node<T>? = this.root) {
         root?.let {
-            val left = root.getLeft()
-            val right = root.getRight()
-            root.setLeft(null)
-            root.setRight(null)
-            this.add(root)
+            val queue: MutableList<Node<T>> = mutableListOf()
+            queue.add(root)
+            while (queue.size != 0) {
+                val node = queue.removeAt(0)
+                println(node.getValue())
+                node.getRight()?.let { queue.add(it) }
+                node.getLeft()?.let {queue.add(it) }
+            }
+        }
+    }
+
+    fun delete(value: Comparable<T>, root: Node<T>? = this.root, parent: Node<T> = this.root) {
+        root?.let{
+            if (compareValues(value, it.getValue()) == 0) {
+                if (parent.getRight() == it) parent.setRight(null)
+                else if (parent.getLeft() == it) (parent.setLeft(null))
+                addSubtree(it.getLeft())
+                addSubtree(it.getRight())
+                it.setLeft(null)
+                it.setRight(null)
+                return
+            }
+            delete(value, it.getLeft(), it)
+            delete(value, it.getRight(), it)
+        }
+    }
+
+    private fun addSubtree(root: Node<T>?) {
+        root?.let {
+            val left = it.getLeft()
+            val right = it.getRight()
+            it.setLeft(null)
+            it.setRight(null)
+            this.add(it)
             this.addSubtree(left)
             this.addSubtree(right)
         }
@@ -99,27 +137,28 @@ class Tree<T>(root: Node<T>) {
 
     fun getLeavesCount (root:Node<T>? = this.root ) : Int {
         root?.let {
-            if (root.getLeft() == null && root.getRight() == null) return 1;
-            return getLeavesCount(root.getLeft()) + getLeavesCount(root.getRight())
+            if (it.getLeft() == null && it.getRight() == null) return 1;
+            return getLeavesCount(it.getLeft()) + getLeavesCount(it.getRight())
         }
         return 0;
     }
 
-    fun printTree(root:Node<T>? = this.root) {
-        root?.let {
-            println("Main: " + root.getValue())
-            printTree(root.getLeft())
-            printTree(root.getRight())
-        }
-    }
+//    fun printTree(root:Node<T>? = this.root) {
+//        root?.let {
+//            println("Main: " + it.getValue())
+//            printTree(it.getLeft())
+//            printTree(it.getRight())
+//        }
+//    }
 
     fun isBalanced(root:Node<T>? = this.root) : Boolean {
         root?.let {
-            if (!isBalancedHelper(root)) return false
-            return isBalanced(root.getLeft()) && isBalanced(root.getRight())
+            if (!isBalancedHelper(it)) return false
+            return isBalanced(it.getLeft()) && isBalanced(it.getRight())
         }
         return true
     }
+
     private fun isBalancedHelper(root:Node<T>? = this.root) : Boolean {
             root ?: return true
             return getSize(root.getLeft()) == getSize(root.getRight())
