@@ -30,18 +30,16 @@ class Node<T>(value: Comparable<T>) {
 }
 
 
-open class Tree<T>(root: Node<T>) {
+
+
+class Tree<T>(root: Node<T>) {
     private var root: Node<T>
 
     init {
         this.root = root
     }
 
-    open fun getRoot() : Node<T> {
-        return this.root
-    }
-
-    open fun add(value: Comparable<T>, root: Node<T> = this.root) {
+    fun add(value: Comparable<T>, root: Node<T> = this.root) {
         val comparison = compareValues(value, root.getValue())
 
         if (comparison > 0) {
@@ -57,7 +55,7 @@ open class Tree<T>(root: Node<T>) {
 
     }
 
-    fun add(node: Node<T>, root: Node<T>? = this.root) {
+    private fun add(node: Node<T>, root: Node<T>? = this.root) {
         if (root == null) {
             this.root = node
             return
