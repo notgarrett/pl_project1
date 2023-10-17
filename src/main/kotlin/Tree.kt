@@ -1,5 +1,3 @@
-import org.jetbrains.annotations.NotNull
-
 class Node<T>(value: Comparable<T>) {
     private var left: Node<T>? = null
     private var right: Node<T>? = null
@@ -9,11 +7,11 @@ class Node<T>(value: Comparable<T>) {
         this.value = value
     }
 
-    fun setLeft(node: Node<T>) {
+    fun setLeft(node: Node<T>?) {
         this.left = node
     }
 
-    fun setRight(node: Node<T>){
+    fun setRight(node: Node<T>?){
         this.right = node
     }
 
@@ -41,17 +39,57 @@ class Tree<T>(root: Node<T>) {
 
     fun add(value: Comparable<T>, root: Node<T> = this.root) {
         val comparison = compareValues(value, root.getValue())
+
         if (comparison > 0) {
             if (root.getRight() == null) return root.setRight(Node(value))
             return add(value, root.getRight()!!)
         }
-        else if (root.getLeft() == null) return root.setLeft(Node(value))
-        return add(value, root.getLeft()!!)
+        else if (comparison < 0) {
+            if (root.getLeft() == null) return root.setLeft(Node(value))
+            return add(value, root.getLeft()!!)
+        }
+
+        return
 
     }
 
-    fun search(value: Comparable<T>, root: Node<T> = this.root) : Boolean {
-        return true
+    fun add(node: Node<T>, root: Node<T> = this.root) {
+        val comparison = compareValues(node.getValue(), root.getValue())
+
+        if (comparison > 0) {
+            if (root.getRight() == null) return root.setRight(node)
+            return add(node, root.getRight()!!)
+        }
+        else if (comparison < 0) {
+            if (root.getLeft() == null) return root.setLeft(node)
+            return add(node, root.getLeft()!!)
+        }
+
+        return
+    }
+
+    fun dfSearch(value: Comparable<T>, root: Node<T>? = this.root) : Node<T> {
+
+    }
+
+    fun bfSearch(value: Comparable<T>, root: Node<T>? = this.root) : Node<T> {
+
+    }
+
+    fun delete(value: Comparable<T>, root: Node<T>? = this.root) {
+
+    }
+
+    fun addSubtree(root: Node<T>?) {
+        root?.let {
+            val left = root.getLeft()
+            val right = root.getRight()
+            root.setLeft(null)
+            root.setRight(null)
+            this.add(root)
+            this.addSubtree(left)
+            this.addSubtree(right)
+        }
     }
 
      fun getSize (root:Node<T>? = this.root) : Int {
@@ -73,6 +111,23 @@ class Tree<T>(root: Node<T>) {
             printTree(root.getLeft())
             printTree(root.getRight())
         }
-
     }
+
+    fun isBalanced(root:Node<T>? = this.root) : Boolean {
+        root?.let {
+            if (!isBalancedHelper(root)) return false
+            return isBalanced(root.getLeft()) && isBalanced(root.getRight())
+        }
+        return true
+    }
+    private fun isBalancedHelper(root:Node<T>? = this.root) : Boolean {
+            root ?: return true
+            return getSize(root.getLeft()) == getSize(root.getRight())
+                    || getSize(root.getLeft()) == getSize(root.getRight()) - 1
+                    || getSize(root.getLeft()) == getSize(root.getRight()) + 1
+    }
+
+
+
+
 }
